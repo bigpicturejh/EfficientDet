@@ -21,8 +21,6 @@ data_transfrom_albumentation=albumentations.Compose([
     ToTensorV2()
     # albumentations.pytorch.transforms.ToTensor()
     
-
-
 ])
 
 
