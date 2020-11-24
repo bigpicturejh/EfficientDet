@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import math
 from EfficientNet import EfficientNet
-
+from BiFPN import BifPN
 
 def ModelParing(model_idx):
     return {'efficientnet_b{}':'efficientdet_d{}'.format(model_idx)}
