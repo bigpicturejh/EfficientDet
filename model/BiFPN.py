@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 
 from module import ConvModule, Swish, MemoryEfficientSwish
-from utils import Conv2SamePadding
+from utils import Conv2SamePadding, PoolwithPadding
 
 class SepConv(nn.Module):
-    def __init__(self, in_ch, out_ch, norm=True, activation=False, onnx_export=False):
+    def __init__(self, in_ch, out_ch=None, norm=True, activation=False, onnx_export=False):
         super(SepConv, self).__init__()
         
         self.norm=norm
@@ -46,7 +46,6 @@ class BiFPN_sub(nn.Module):
 
         assert isinstance(in_ch, list)
 
-        self.in_ch=in_ch
         self.out_ch=out_ch
         self.num_out=num_out
         self.num_ins=len(in_ch)
@@ -68,8 +67,35 @@ class BiFPN_sub(nn.Module):
         self.fpn_conv=nn.ModuleList()
         self.stack_bifpn_conv=nn.ModuleList()
 
+    
+        # Layer sacling
+        self.conv6_up=SepConv(in_ch, onnx_export=True)
+        self.conv5_up=SepConv(in_ch, onnx_export=True)
+        self.conv4_up=SepConv(in_ch, onnx_export=True)
+        self.conv3_up=SepConv(in_ch, onnx_export=True)
+
+        self.conv7_down=SepConv(in_ch, onnx_export=True)
+        self.conv6_down=SepConv(in_ch, onnx_export=True)
+        self.conv5_down=SepConv(in_ch, onnx_export=True)
+        self.conv4_down=SepConv(in_ch, onnx_export=True)
+
+        # Feature scaling
+        self.p6_upsample=nn.Upsample(scale_factor=2, mode='neareast') # Result of p7 upsample
+        self.p5_upsample=nn.Upsample(scale_factor=2, mode='neareast')
+        self.p4_upsample=nn.Upsample(scale_factor=2, mode='neareast')
+        self.p3_upsample=nn.Upsample(scale_factor=2, mode='neareast')
+
+        self.p4_downsample= PoolwithPadding()# Result of p3 downsample
+        self.p5_downsample= PoolwithPadding()
+        self.p6_downsample=PoolwithPadding()
+        self.p7_downsample =PoolwithPadding()
+
+
+
+        
+
         for i in range(self.start_level, self.backbone_end_level):
-            l_conv=ConvModule
+            l_conv=SepConv()
 
 class BiFPNMoudle(nn.Module):
     def __init__(self, channel, level, init=0.5, conv_cfg=None, norm_cfg=None, activation=None, eps=1e-4)

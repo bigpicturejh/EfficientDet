@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import math
 from EfficientNet import EfficientNet
-from BiFPN import BifPN
+from BiFPN import BiFPN_sub
 
 def ModelParing(model_idx):
     return {'efficientnet_b{}':'efficientdet_d{}'.format(model_idx)}
@@ -15,10 +15,13 @@ class EfficientDet(nn.Module):
         self.ModelName= ModelParing(0)
         self.backbone=EfficientNet(self.CompoundScaleBiFPN)
         self.is_train=is_train
-        # self.body=BiFPN(in_channel=self.backbone.contain)
+        
 
         self.out_ch_test=self.backbone.contain[-5:]
         print(f"Num of BiFPN output channel : {self.out_ch_test}")
+        
+        # Core engine
+        self.body=BiFPN_sub(in_channel=self.backbone.contain[-5:])
 
         
 if __name__=="__main__":

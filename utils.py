@@ -40,5 +40,34 @@ class Conv2SamePadding(nn.Moduel):
         return x
 
 
+class PoolwithPadding(nn.Module):
+    def __init__(self, *args):
+        super(PoolwithPadding, self).__init__()
+
+        self.pool=nn.MaxPool2d(*args, **kwargs)
+        self.stride=self.pool.stride
+        self.kernel_size=self.pool.kernel_size
+ 
+    def forward(self, x):
+
+        height, width = x.shape[-2:] # batch, channel, height, width
+        
+        expand_height=(math.ceil(height/self.stride[0])-1)*self.stride[0]-height+self.kernel_size[1]
+        expand_width=(math.ceil(width/self.stride[1])-1)*self.stride[1]-width+self.kernel_size[0]
+
+        left_pad=expand_width//2
+        right_pad=expand_width-left_pad
+        top_pad=expand_height//2
+        bottom_pad=expand_height-top_pad
+
+        padded_x=F.pad(x, (left_pad, right_pad, top_pad, bottom_pad))
+        return padded_x
+
+
+        
+        
+        
+
+
 if __name__=="__main__":
     tempTensor=torch.rand(1, 3, 64, 64)
